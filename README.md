@@ -82,6 +82,23 @@ There are two passive runners within this Lex. One to process log entries, the o
 |Logs|process|required|required|X|
 |Sensors|process|required|required|optional|
 
+## Relationship examples
+Send the data to an [InfluxDB](https://github.com/influxdata/influxdb) instance. Requires [Legion::Extensions::Influxdb](https://rubygems.org/gems/lex-influxdb)
+```json
+{
+  "name": "esphome sensor to influxdb",
+  "enabled": 1,
+  "transformation": "{
+                     	"host": "localhost",
+                     	"port": 8086,
+                     	"database": "esphome",
+                     	"metrics": "{
+                          \"values\":{\"<%= results[:sub_type] %>\":<%= results[:value].to_f %>},
+                          \"tags\":{\"name\":\"<%= results[:name] %>\", \"type\": \"<%= results[:type] %>\",\"sub_type\": \"<%= results[:sub_type] %>\",\"item\": \"<%= results[:item] %>\"}
+                        }",
+                     }"
+}
+```
 
 ## Development
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
