@@ -40,11 +40,11 @@ module Legion
             end
 
             {
-              value:           value,
-              name:            items[0],
-              type:            items[2],
-              sub_type:        subtype,
-              item:            items[3],
+              value: value,
+              name: items[0],
+              type: items[2],
+              sub_type: subtype,
+              item: items[3],
               timestamp_in_ms: payload[:timestamp_in_ms]
             }
           end

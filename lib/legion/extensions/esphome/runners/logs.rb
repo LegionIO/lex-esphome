@@ -5,8 +5,8 @@ module Legion
         module Logs
           def self.process(value:, **payload)
             {
-              log:             value.gsub(/\e\[([;\d]+)?m/, ''),
-              location:        payload[:routing_key].split('.').last,
+              log: value.gsub(/\e\[([;\d]+)?m/, ''),
+              location: payload[:routing_key].split('.').last,
               timestamp_in_ms: payload[:timestamp_in_ms]
             }
           end
