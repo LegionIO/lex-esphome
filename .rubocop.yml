@@ -1,14 +1,7 @@
-Layout/LineLength:
-  Max: 120
-Metrics/MethodLength:
-  Max: 50
-Style/Documentation:
-  Enabled: false
-AllCops:
-  TargetRubyVersion: 2.5
-  NewCops: enable
-  SuggestExtensions: false
-Style/FrozenStringLiteralComment:
-  Enabled: false
-Style/ClassAndModuleChildren:
-  Enabled: false
+inherit_gem:
+  rubocop-legion: .rubocop.yml
+
+Metrics/BlockLength:
+  Exclude:
+    - 'spec/**/*'
+    - '*.gemspec'
