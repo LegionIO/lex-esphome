@@ -1,106 +1,48 @@
-# Legion::Extensions::Esphome
+# lex-esphome
 
-A Legion Extension to process messages coming from the [ESPHome](https://esphome.io/) Project
+LegionIO extension for ESPHome device control via the [Web Server REST API](https://esphome.io/web-api/).
+
+## Supported Entity Domains
+
+sensor, binary_sensor, switch, light, fan, cover, select, button, number, climate, lock, text, media_player, alarm_control_panel, update, valve
+
 ## Installation
 
-Add this line to your application's Gemfile:
+Add to your Gemfile:
 
 ```ruby
 gem 'lex-esphome'
 ```
 
-And then execute:
+## Configuration
 
-    $ bundle install
-
-Or install it yourself as:
-
-    $ gem install lex-esphome
-
-## Adding to Legion
-You can manually install with a `gem install lex-esphome` command or by adding it into your settings with something like this
 ```json
 {
   "extensions": {
     "esphome": {
-      "enabled": true, "workers": 1
+      "enabled": true,
+      "devices": {
+        "living_room": { "host": "192.168.1.50", "port": 80 }
+      }
     }
   }
 }
 ```
 
-Example [shoveler](https://www.rabbitmq.com/shovel.html) definition to get data over from `/` to `/legion` when using [RabbitMQ + MQTT](https://www.rabbitmq.com/mqtt.html)
-```json
-{
-  "permissions": [{
-    "user": "legion",
-	"vhost": "/",
-	"read": "to_legion"
-  }],
-  "parameters": [{
-	"value": {
-	  "dest-exchange": "esphome",
-	  "dest-protocol": "amqp091",
-	  "dest-uri": "amqp://legion@/legion",
-	  "src-delete-after": "never",
-	  "src-protocol": "amqp091",
-	  "src-queue": "to_legion",
-	  "src-uri": "amqp://"
-	},
-	"vhost": "legion",
-	"component": "shovel",
-	"name": "ESPHome -> Legion"
-  }],
-	"queues": [{
-      "name": "to_legion",
-	  "vhost": "/",
-	  "durable": true,
-	}],
-	"bindings": [{
-	  "source": "amq.topic",
-	  "vhost": "/",
-	  "destination": "to_legion",
-	  "destination_type": "queue",
-	  "routing_key": "#.sensor.#.state",
-	  "arguments": {}
-	}, {
-	  "source": "amq.topic",
-	  "vhost": "/",
-	  "destination": "to_legion",
-	  "destination_type": "queue",
-	  "routing_key": "esphome.logs.#",
-	  "arguments": {}
-	}]
-}
+## Standalone Usage
+
+```ruby
+require 'legion/extensions/esphome/client'
+
+client = Legion::Extensions::Esphome::Client.new(
+  devices: { office: { host: '192.168.1.51' } }
+)
+
+client.get_state(device: :office, entity: 'temperature')
+client.turn_on(device: :office, entity: 'desk_lamp', brightness: 200)
+client.toggle(device: :office, entity: 'fan')
 ```
 
-## Usage
-There are two passive runners within this Lex. One to process log entries, the other to process sensor data
+## License
 
-|runner|function|value|routing key|timestamp_in_ms|
-|---|---|---|---|---|
-|Logs|process|required|required|X|
-|Sensors|process|required|required|optional|
-
-## Relationship examples
-Send the data to an [InfluxDB](https://github.com/influxdata/influxdb) instance. Requires [Legion::Extensions::Influxdb](https://rubygems.org/gems/lex-influxdb)
-```json
-{
-  "name": "esphome sensor to influxdb",
-  "enabled": 1,
-  "transformation": "{
-                     	"host": "localhost",
-                     	"port": 8086,
-                     	"database": "esphome",
-                     	"metrics": "{
-                          \"values\":{\"<%= results[:sub_type] %>\":<%= results[:value].to_f %>},
-                          \"tags\":{\"name\":\"<%= results[:name] %>\", \"type\": \"<%= results[:type] %>\",\"sub_type\": \"<%= results[:sub_type] %>\",\"item\": \"<%= results[:item] %>\"}
-                        }",
-                     }"
-}
-```
-
-## Development
-After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
-
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+MIT
